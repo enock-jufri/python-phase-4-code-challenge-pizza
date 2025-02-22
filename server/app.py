@@ -43,18 +43,19 @@ api.add_resource(Restaurants, '/restaurants')
 
 class RestaurantById(Resource):
     def get(self,id):
-        restaurant=Restaurant.query.get(id)
+        restaurant=db.session.get(Restaurant,id)
         if not restaurant:
-            return make_response({'error':"Restaurant not found"})
+            return make_response({'error':"Restaurant not found"}, 404)
         return make_response(restaurant.to_dict(),200)
 
-    def delete(self):
+    def delete(self,id):
         restaurant=Restaurant.query.get(id)
         if not restaurant:
-            return make_response({'error':"Restaurant not found"})
+            return make_response({'error':"Restaurant not found"},404)
 
         db.session.delete(restaurant)
-        return make_response(200)
+        db.session.commit(  )
+        return make_response({'message':'restaurtant deleted successfully'},200)
 
 api.add_resource(RestaurantById, '/restaurants/<int:id>')
 
@@ -73,15 +74,15 @@ class RestaurantPizzas(Resource):
     def post(self):
         data=request.get_json()
         try:
-            r=RestaurantPizza(
+            rp=RestaurantPizza(
                 price=data['price'],
                 pizza_id=data['pizza_id'],
                 restaurant_id=data['restaurant_id']
             )
-            db.session.add(r)
+            db.session.add(rp)
             db.session.commit()
 
-            return make_response(r.to_dict(), 200)
+            return make_response(rp.to_dict(), 200)
         except ValueError as e:
             return make_response({'errors': [str(e)]})
     

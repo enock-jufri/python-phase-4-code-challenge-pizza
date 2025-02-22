@@ -16,14 +16,14 @@ db = SQLAlchemy(metadata=metadata)
 class Restaurant(db.Model, SerializerMixin):
     __tablename__ = "restaurants"
 
-    serialize_rules=('-restaurant_pizza.restaurant',)
+    serialize_rules=('-restaurant_pizzas.restaurant',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     address = db.Column(db.String)
 
     # add relationship
-    restaurant_pizza=db.relationship('RestaurantPizza',back_populates='restaurant',cascade='all, delete-orphan')
+    restaurant_pizzas=db.relationship('RestaurantPizza',back_populates='restaurant',cascade='all, delete-orphan')
     # add serialization rules
 
     def __repr__(self):
@@ -33,14 +33,14 @@ class Restaurant(db.Model, SerializerMixin):
 class Pizza(db.Model, SerializerMixin):
     __tablename__ = "pizzas"
     
-    serialize_rules=('-restaurant_pizza.pizza',)
+    serialize_rules=('-restaurant_pizzas.pizza',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     ingredients = db.Column(db.String)
 
     # add relationship
-    restaurant_pizza=db.relationship('RestaurantPizza',back_populates='pizza')
+    restaurant_pizzas=db.relationship('RestaurantPizza',back_populates='pizza',cascade='all,delete-orphan')
     # add serialization rules
 
     def __repr__(self):
@@ -50,7 +50,7 @@ class Pizza(db.Model, SerializerMixin):
 class RestaurantPizza(db.Model, SerializerMixin):
     __tablename__ = "restaurant_pizzas"
 
-    serialize_rules=('-pizza.restaurant_pizza','-restaurant.restaurant_pizza')
+    serialize_rules=('-pizza.restaurant_pizzas','-restaurant.restaurant_pizzas')
 
     id = db.Column(db.Integer, primary_key=True)
     price = db.Column(db.Integer, nullable=False)
@@ -58,8 +58,8 @@ class RestaurantPizza(db.Model, SerializerMixin):
     restaurant_id=db.Column(db.Integer, db.ForeignKey('restaurants.id'))
 
     # add relationships
-    pizza=db.relationship('Pizza', back_populates='restaurant_pizza')
-    restaurant=db.relationship('Restaurant',back_populates='restaurant_pizza')
+    pizza=db.relationship('Pizza', back_populates='restaurant_pizzas')
+    restaurant=db.relationship('Restaurant',back_populates='restaurant_pizzas')
 
     # add serialization rules
 
