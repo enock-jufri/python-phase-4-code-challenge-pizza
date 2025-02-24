@@ -26,7 +26,7 @@ def index():
 
 class Restaurants(Resource):
     def get(self):
-        restaurants=[restaurant.to_dict() for restaurant in Restaurant.query.all()]
+        restaurants=[restaurant.to_dict(only=['id','name','address']) for restaurant in Restaurant.query.all()]
         return make_response(restaurants,200)
     def post(self):
         try:
@@ -49,19 +49,19 @@ class RestaurantById(Resource):
         return make_response(restaurant.to_dict(),200)
 
     def delete(self,id):
-        restaurant=Restaurant.query.get(id)
+        restaurant=db.session.get(Restaurant,id)
         if not restaurant:
             return make_response({'error':"Restaurant not found"},404)
 
         db.session.delete(restaurant)
         db.session.commit(  )
-        return make_response({'message':'restaurtant deleted successfully'},200)
+        return make_response({'message':'restaurtant deleted successfully'},204)
 
 api.add_resource(RestaurantById, '/restaurants/<int:id>')
 
 class Pizzas(Resource):
     def get(self):
-        pizzas=[pizza.to_dict() for pizza in Pizza.query.all()]
+        pizzas=[pizza.to_dict(only=['id','name','ingredients']) for pizza in Pizza.query.all()]
         return make_response(pizzas,200)
     
 api.add_resource(Pizzas, '/pizzas')
@@ -82,9 +82,9 @@ class RestaurantPizzas(Resource):
             db.session.add(rp)
             db.session.commit()
 
-            return make_response(rp.to_dict(), 200)
+            return make_response(rp.to_dict(), 201)
         except ValueError as e:
-            return make_response({'errors': [str(e)]})
+            return make_response({'errors': ['validation errors']},400)
     
 api.add_resource(RestaurantPizzas, '/restaurant_pizzas')
 if __name__ == "__main__":
